@@ -7,6 +7,7 @@ const meow = require('meow');
 const chalk = require('chalk');
 const ora = require('ora');
 const execa = require('execa');
+const cleanStack = require('clean-stack');
 const {toXoDisplayMessage} = require('./util');
 
 const cwd = process.cwd();
@@ -22,42 +23,51 @@ const defaultOptions = {
 	glob: `${path.sep}**${path.sep}*.js`
 };
 
-const closestNodeModulesFolder = () => {
-	return makePath(aboveHere(__dirname), 'node_modules');
+const closestNodeModulesFolder = fromDir => {
+	return makePath(aboveHere(fromDir), 'node_modules');
 };
 
-const resolveXoCliPath = () => {
-	return makePath(closestNodeModulesFolder(), 'xo', 'cli.js');
+const resolveXoCliPath = (fromDir = __dirname) => {
+	const nodeModulesPath = closestNodeModulesFolder(fromDir);
+	const cliPath = makePath(nodeModulesPath, 'xo', 'cli.js');
+	if (isFile(cliPath)) {
+		return {
+			nodeModulesPath,
+			cliPath
+		};
+	}
+
+	const aboveFrom = aboveHere(fromDir);
+
+	return resolveXoCliPath(aboveFrom);
 };
 
 async function runXo({src, glob, fix} = defaultOptions) {
+	let xoCliPath;
 	try {
 		const xoArgs = `${path.join(cwd, src)}${glob}${(fix ? ' --fix' : '')}`;
-		const xoCliPath = resolveXoCliPath();
+		const {cliPath, nodeModulesPath} = resolveXoCliPath();
+		xoCliPath = cliPath;
 
-		if (isFile(xoCliPath)) {
-			const {stdout} = await execa('node', [xoCliPath, xoArgs], {
-				env: {
-					NODE_PATH: closestNodeModulesFolder()
-				}
-			});
-			return {
-				message: stdout,
-				success: true,
-				exitCode: 0
-			};
-		}
+		const {stdout} = await execa('node', [xoCliPath, xoArgs], {
+			env: {
+				NODE_PATH: nodeModulesPath
+			}
+		});
 
 		return {
-			message: 'unable to locate xo cli',
-			success: false
+			message: stdout,
+			success: true,
+			exitCode: 0,
+			xoCliPath
 		};
 	} catch (error) {
-		const {exitCode, stdout} = error;
+		const {exitCode, stdout, stderr} = error;
 		return {
-			message: `${(stdout || stdout)}`,
+			message: `${(stdout || stderr || cleanStack(error.stack))}`,
 			success: (exitCode === 0),
-			exitCode: (exitCode || 1)
+			exitCode: (exitCode || 1),
+			xoCliPath
 		};
 	}
 }

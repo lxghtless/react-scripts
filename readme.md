@@ -14,8 +14,6 @@
 
 ```shell
 $ npm install @lxghtless/react-scripts
-# or
-$ npm i react-scripts@npm:@lxghtless/react-scripts
 ```
 
 ## Usage

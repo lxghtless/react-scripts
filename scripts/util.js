@@ -16,9 +16,10 @@ const pRimraf = (...args) => {
 	});
 };
 
-const toXoDisplayMessage = ({message, success, exitCode}) => {
+const toXoDisplayMessage = ({message, success, exitCode, xoCliPath}) => {
 	if (success !== true) {
-		return chalk.red(`${xoBrokenHeart}\n${message}\nexitCode: ${exitCode}`);
+		const fmtMsg = `${xoBrokenHeart}\nmessage: ${message}\nexitCode: ${exitCode}\nsuccess: ${success}\nxoCliPath: ${xoCliPath}`;
+		return chalk.red(fmtMsg);
 	}
 
 	if (!message) {
