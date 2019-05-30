@@ -110,6 +110,10 @@ module.exports = webpackenv => ({
 							},
 							{
 								sourceType: 'unambiguous',
+								plugins: [require.resolve('@babel/plugin-syntax-export-default-from')]
+							},
+							{
+								sourceType: 'unambiguous',
 								plugins: [
 									[
 										require('babel-plugin-module-resolver'),
