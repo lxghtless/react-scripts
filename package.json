@@ -1,6 +1,6 @@
 {
   "name": "@lxghtless/react-scripts",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "scripts for developing, linting, building and testing react apps",
   "license": "ISC",
   "repository": "lxghtless/react-scripts",
