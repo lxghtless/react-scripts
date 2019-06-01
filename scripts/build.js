@@ -14,14 +14,15 @@ const prettyBytes = require('pretty-bytes');
 const webpackConfigFactory = require('./webpack.config.js');
 const {runXo} = require('./runXo');
 const {pRimraf, toXoDisplayMessage} = require('./util');
+const settingsFactory = require('./settingsFactory');
 
 restoreCursor();
-
-const webpackConfig = webpackConfigFactory('production');
 
 const xoHeart = '❤️';
 
 const compile = () => {
+	const settings = settingsFactory();
+	const webpackConfig = webpackConfigFactory('production', settings);
 	const compiler = webpack(webpackConfig);
 
 	return new Promise((resolve, reject) => {

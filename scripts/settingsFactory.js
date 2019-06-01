@@ -13,6 +13,11 @@ const defaultSettings = {
 		scheme: 'http',
 		port: defaultPort,
 		host: defaultHost
+	},
+	flow: true,
+	babelResolver: {
+		root: ['./src', './assets'],
+		alias: {}
 	}
 };
 

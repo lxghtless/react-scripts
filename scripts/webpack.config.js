@@ -13,7 +13,19 @@ const htmlTemplate = path.join(cwd, 'public', 'index.html');
 
 const PUBLIC_PATH = process.env.PUBLIC_PATH || '/';
 
-module.exports = webpackenv => ({
+const getBabelPresets = (webpackenv, enableFlow) => {
+	const presets = [
+		require.resolve('@babel/preset-env'),
+		require.resolve('@babel/preset-react')
+	];
+	if (enableFlow) {
+		presets.push(require.resolve('@babel/preset-flow'));
+	}
+
+	return presets;
+};
+
+module.exports = (webpackenv, {flow: enableFlow, babelResolver: resolverSettings}) => ({
 	mode: isProduction(webpackenv) ? 'production' : isDevelopment(webpackenv) && 'development',
 	entry: './src/index.js',
 	output: {
@@ -65,9 +77,7 @@ module.exports = webpackenv => ({
 						configFile: false,
 						compact: false,
 						// TODO: provide hook to add presets (i.e. merge in .babelrc from cwd or something like that)
-						presets: [
-							require.resolve('@babel/preset-env'),
-							require.resolve('@babel/preset-react'),
+						presets: getBabelPresets(webpackenv, enableFlow).concat([
 							{
 								sourceType: 'unambiguous',
 								plugins: [
@@ -117,17 +127,11 @@ module.exports = webpackenv => ({
 								plugins: [
 									[
 										require('babel-plugin-module-resolver'),
-										{
-											// TODO: provide a hook to customize these settings
-											root: ['./src'],
-											alias: {
-												assets: './assets'
-											}
-										}
+										resolverSettings
 									]
 								]
 							}
-						],
+						]),
 						cacheDirectory: true,
 						cacheCompression: isProduction(webpackenv),
 						sourceMaps: false

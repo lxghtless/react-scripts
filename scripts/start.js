@@ -28,7 +28,10 @@ const start = () => {
 	display = ora(chalk.blueBright('starting dev server')).start();
 
 	try {
-		const compiler = webpack(webpackConfig('development'));
+		const settings = settingsFactory();
+		const {devServer: devServerSettings, open: openSettings} = settings;
+
+		const compiler = webpack(webpackConfig('development', settings));
 
 		compiler.hooks.invalid.tap('invalid', () => {
 			display.text = chalk.blueBright('compiling 🔧');
@@ -52,8 +55,6 @@ const start = () => {
 
 			display = display.succeed(chalk.greenBright('compile complete 🍕 🍺'));
 		});
-
-		const {devServer: devServerSettings, open: openSettings} = settingsFactory();
 
 		const devServer = new WebpackDevServer(compiler, devServerConfig(beforeCompile));
 
