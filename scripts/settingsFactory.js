@@ -14,7 +14,7 @@ const defaultSettings = {
 		port: defaultPort,
 		host: defaultHost
 	},
-	flow: true,
+	flow: false,
 	babelResolver: {
 		root: ['./src', './assets'],
 		alias: {}
